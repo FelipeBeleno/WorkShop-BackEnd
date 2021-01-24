@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 
 app.use(require('./controllers/index'));
 
-//app.use(express.static('public'))
+app.use(express.static('public'))
 
 app.get('/', (req, res) => {
     res.json({
