@@ -389,8 +389,7 @@ app.put('/servicio/arreglo/:id', validacionToken, (req, res) => {
         data.save()
 
 
-        data?.objetos?.forEach((elemento) => {
-
+        data?.objetos.forEach((elemento) => {
             Objeto.findById(elemento.producto, (err, cambioStock) => {
                 if (err) {
                     res.status(400).json({
