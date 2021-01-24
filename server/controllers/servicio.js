@@ -2,7 +2,6 @@ const express = require('express');
 const { validacionToken, validacionAdmin } = require('../middleware/validaciones');
 const Servicio = require('../models/Servicios');
 const Objeto = require('../models/Objetos');
-const moment = require('moment')
 
 const app = express();
 
