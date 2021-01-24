@@ -386,10 +386,9 @@ app.put('/servicio/arreglo/:id', validacionToken, (req, res) => {
         data.estado = body.procesoServicio === 'FINALIZADO' ? false : true
         data.precioTotal = body.precioTotal
 
-        data.save()
 
 
-        data?.objetos.forEach((elemento) => {
+        data.objetos.forEach((elemento) => {
             Objeto.findById(elemento.producto, (err, cambioStock) => {
                 if (err) {
                     res.status(400).json({
@@ -402,6 +401,7 @@ app.put('/servicio/arreglo/:id', validacionToken, (req, res) => {
             })
         });
 
+        data.save()
         res.json({
             ok: true,
             data
