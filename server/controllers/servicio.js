@@ -2,13 +2,89 @@ const express = require('express');
 const { validacionToken, validacionAdmin } = require('../middleware/validaciones');
 const Servicio = require('../models/Servicios');
 const Objeto = require('../models/Objetos');
+const moment = require('moment')
 
 const app = express();
+
+
+// consulta de ventas y dinero por fecha por mes
+app.get('/servicios/dec', validacionToken, (req, res) => {
+
+    Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date()).date(1).format('YYYY-MM-DD') }, tipoServicio: 'VENTA' }, (err, dato) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            })
+        }
+
+        const resultadoVentas = dato.reduce((contador, ele) => {
+            contador += ele.precioTotal
+
+            return contador
+        }, 0)
+
+
+        Servicio.countDocuments({ fechaRegistro_iso: { $gte: moment(new Date()).date(1).format('YYYY-MM-DD') }, tipoServicio: 'VENTA' }, (err, contador) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    error: err
+                })
+            }
+
+            res.json({
+                ok: true,
+                totalVendidoMes: resultadoVentas,
+                numeroVentasMes: contador,
+                dato
+            })
+
+        })
+    })
+
+})
+
+app.get('/servicios/arr', validacionToken, (req, res) => {
+
+    Servicio.countDocuments({ /* fechaRegistro_iso: { $gte: moment(new Date()).date(1).format('YYYY-MM-DD') } ,*/ tipoServicio: 'ARREGLO', estado: true }, (err, contador) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            })
+        }
+        res.json({
+            ok: true,
+            arreglospendientes: contador
+
+        })
+    })
+})
+
 
 // Consultar trabajos (ARREGLOS)
 app.get('/servicio/arreglo/activo', validacionToken, (req, res) => {
 
     Servicio.find({ estado: true, tipoServicio: 'ARREGLO' }, (err, servicios) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            })
+        }
+
+        res.json({
+            ok: true,
+            servicios
+        })
+    }).populate('usuario cliente objetos procedimientos', 'nombreApellido numDocumento nombre telefono email descripcion')
+});
+
+// consulta de servicios incativos
+app.get('/servicio/arreglo/inactivo', validacionToken, (req, res) => {
+
+    Servicio.find({ estado: false, tipoServicio: 'ARREGLO' }, (err, servicios) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
@@ -411,11 +487,11 @@ app.put('/servicio/arreglo/:id', validacionToken, (req, res) => {
 });
 
 //ELIMINAR SERVICIOS
-app.delete('/servicio/borrar/:id', [validacionToken], (req, res) => {
+app.delete('/servicio/borrar/:id', validacionToken, (req, res) => {
 
     const id = req.params.id;
 
-    Servicio.findByIdAndUpdate(id, { estado: false }, (err, resp) => {
+    Servicio.findByIdAndDelete(id, (err, resp) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
