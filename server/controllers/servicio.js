@@ -3,9 +3,66 @@ const { validacionToken, validacionAdmin } = require('../middleware/validaciones
 const Servicio = require('../models/Servicios');
 const Objeto = require('../models/Objetos');
 const moment = require('moment')
+require('moment/locale/es-mx')
 
+moment.locale('es-mx')
 const app = express();
 
+
+
+
+// consulta tres meses antes
+
+app.get('/servicios/tercerMes', (req, res) => {
+    Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date(), 'YYYY-MMMM-DD').subtract(3, 'months').date(1).format('YYYY-MMMM-DD'), $lte: moment(new Date(), 'YYYY-MMMM-DD').subtract(3, 'months').endOf('month').format('YYYY-MM-DD') }, tipoServicio: 'VENTA' },
+        (err, tercerMes) => {
+            if (err) {
+                return res.status(500).json({
+                    ok: false,
+                    error: err
+                })
+            }
+            Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date(), 'YYYY-MM-DD').subtract(2, 'months').date(1).format('YYYY-MM-DD'), $lte: moment(new Date(), 'YYYY-MM-DD').subtract(2, 'months').endOf('month').format('YYYY-MM-DD') }, tipoServicio: 'VENTA' },
+                (err, segundoMes) => {
+                    if (err) {
+                        return res.status(500).json({
+                            ok: false,
+                            error: err
+                        })
+                    }
+
+                    Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date(), 'YYYY-MM-DD').subtract(1, 'months').date(1).format('YYYY-MM-DD'), $lte: moment(new Date(), 'YYYY-MM-DD').subtract(1, 'months').endOf('month').format('YYYY-MM-DD') }, tipoServicio: 'VENTA' },
+                        (err, mesAtras) => {
+                            if (err) {
+                                return res.status(500).json({
+                                    ok: false,
+                                    error: err
+                                })
+                            }
+                            Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date()).date(1).format('YYYY-MM-DD') }, tipoServicio: 'VENTA' },
+                                (err, mesActual) => {
+                                    if (err) {
+                                        return res.status(500).json({
+                                            ok: false,
+                                            error: err
+                                        })
+                                    }
+                                    res.json({
+                                        ok: true,
+                                        tercerMes,
+                                        segundoMes,
+                                        mesAtras,
+                                        mesActual
+                                    })
+                                })
+                        })
+                })
+        })
+})
+
+app.get('/servicios/segundoMes', (req, res) => {
+
+})
 
 // consulta de ventas y dinero por fecha por mes
 app.get('/servicios/dec', validacionToken, (req, res) => {
