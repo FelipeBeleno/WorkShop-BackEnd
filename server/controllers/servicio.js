@@ -213,7 +213,7 @@ app.get('/servicios/clientes/ventas/:id', (req, res) => {
             ok: true,
             venta
         })
-    }).populate('cliente usuario', 'nombre nombreApellido')
+    }).populate('cliente usuario', 'nombre nombreApellido numDocumento email telefono')
 })
 
 //consulta de ventas todas !
@@ -518,8 +518,6 @@ app.put('/servicio/arreglo/:id', validacionToken, (req, res) => {
         data.procesoServicio = body.procesoServicio
         data.estado = body.procesoServicio === 'FINALIZADO' ? false : true
         data.precioTotal = body.precioTotal
-
-
 
         data.objetos.forEach((elemento) => {
             Objeto.findById(elemento.producto, (err, cambioStock) => {

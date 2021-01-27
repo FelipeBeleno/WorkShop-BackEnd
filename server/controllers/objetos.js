@@ -8,42 +8,20 @@ const app = express();
 
 app.get('/objeto', validacionToken, (req, res) => {
 
-    const page = parseFloat(req.query.page) || 1;
-
-    const limit = parseFloat(req.query.limit) || 5;
-
-    const opciones = {
-        limit,
-        page,
-        populate: {
-            path: 'usuario categoria',
-            select: 'nombreApellido nombre'
-        }
-    }
-
-    Objeto.paginate({ estado: true }, opciones, (err, objeto) => {
+    Objeto.find({ estado: true }, (err, objeto) => {
         if (err) {
             return res.status(500).json({
                 ok: false,
                 error: err
             })
         }
-        objeto.docs = objeto.docs.map(data => {
-            if (data.cantidadDisponible <= 5) {
-                return data = {
-                    data,
-                    alerta: 'Quedan menos de 5 unidades'
-                }
-            }
-            return data;
-        })
 
         res.json({
             ok: true,
             objeto: objeto,
         })
 
-    })
+    }).populate('usuario categoria', 'nombreApellido nombre')
 });
 
 app.get('/objeto/:id', validacionToken, (req, res) => {
