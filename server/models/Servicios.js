@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 const validator = require('mongoose-unique-validator');
 const moment = require('moment')
-
+const tz = require('moment-timezone')
 const Schema = mongoose.Schema;
 
-const fecha = moment(new Date()).utc(true)
+const fecha = moment(new Date()).tz('America/Bogota').utc(true)
 
 
 const serviciosSchema = new Schema({
