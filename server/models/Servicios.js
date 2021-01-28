@@ -1,7 +1,10 @@
 const mongoose = require('mongoose');
 const validator = require('mongoose-unique-validator');
+const moment = require('moment')
 
 const Schema = mongoose.Schema;
+
+const fecha = moment(new Date()).utc(true)
 
 
 const serviciosSchema = new Schema({
@@ -28,7 +31,8 @@ const serviciosSchema = new Schema({
     fechaRegistro_iso: {
         type: Date,
         required: true,
-        default: Date.now()
+        default: fecha.format()
+
 
     },
     estado: {

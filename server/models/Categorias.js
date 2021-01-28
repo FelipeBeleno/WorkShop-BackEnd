@@ -11,7 +11,10 @@ const categoriasSchema = new Schema({
         type: String,
         required: true
     },
-    estado:{
+    descripcion: {
+        type: String,
+    },
+    estado: {
         type: Boolean,
         default: true
     },

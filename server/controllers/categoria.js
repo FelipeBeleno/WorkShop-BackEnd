@@ -55,6 +55,7 @@ app.post('/categoria', [validacionToken, validacionAdmin], (req, res) => {
 
     const categoria = new Categotia({
         nombre: body.nombre,
+        descripcion: body.descripcion,
         usuario: req.usuario
     });
 

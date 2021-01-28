@@ -2,7 +2,8 @@ const express = require('express');
 const { validacionToken, validacionAdmin } = require('../middleware/validaciones');
 const Servicio = require('../models/Servicios');
 const Objeto = require('../models/Objetos');
-const moment = require('moment')
+const moment = require('moment');
+const { utc } = require('moment');
 require('moment/locale/es-mx')
 
 moment.locale('es-mx')
@@ -11,9 +12,27 @@ const app = express();
 
 
 
-// consulta tres meses antes
 
-app.get('/servicios/tercerMes', (req, res) => {
+//consulta por dia
+app.get('/servicios/total/:dia', (req, res) => {
+    const dia = req.params.dia;
+    let diaF = moment(dia, 'YYYY-MM-DD').utc(true)
+    Servicio.find({ fechaRegistro_iso: { $gt: diaF.format(), $lt: diaF.endOf('day').format() } }, (err, servicios) => {
+        if (err) {
+            return res.status(500).json({
+                ok: false,
+                error: err
+            })
+        }
+        res.json({
+            ok: true,
+            servicios
+        })
+    })
+})
+
+// consulta tres meses antes
+app.get('/servicios/tercerMes', validacionToken, (req, res) => {
     Servicio.find({ fechaRegistro_iso: { $gte: moment(new Date(), 'YYYY-MMMM-DD').subtract(3, 'months').date(1).format('YYYY-MMMM-DD'), $lte: moment(new Date(), 'YYYY-MMMM-DD').subtract(3, 'months').endOf('month').format('YYYY-MM-DD') }, tipoServicio: 'VENTA' },
         (err, tercerMes) => {
             if (err) {
